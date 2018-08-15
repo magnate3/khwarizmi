@@ -1,4 +1,4 @@
-dep_basicfwd.o = /home/khwarizmi/skeleton/basicfwd.c \
+dep_basicfwd.o = /home/khwarizmi/git/khwarizmi/skeleton/basicfwd.c \
  /usr/include/stdc-predef.h \
  /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_config.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/stdint.h /usr/include/stdint.h \
@@ -45,18 +45,15 @@ dep_basicfwd.o = /home/khwarizmi/skeleton/basicfwd.c \
  /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h \
- /usr/include/x86_64-linux-gnu/bits/select2.h \
  /usr/include/x86_64-linux-gnu/sys/sysmacros.h \
  /usr/include/x86_64-linux-gnu/bits/sysmacros.h \
  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h \
  /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h \
  /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h \
- /usr/include/alloca.h \
- /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
- /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
- /usr/include/x86_64-linux-gnu/bits/stdlib.h /usr/include/ctype.h \
- /usr/include/errno.h /usr/include/x86_64-linux-gnu/bits/errno.h \
- /usr/include/linux/errno.h /usr/include/x86_64-linux-gnu/asm/errno.h \
+ /usr/include/alloca.h /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
+ /usr/include/ctype.h /usr/include/errno.h \
+ /usr/include/x86_64-linux-gnu/bits/errno.h /usr/include/linux/errno.h \
+ /usr/include/x86_64-linux-gnu/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include-fixed/limits.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include-fixed/syslimits.h \
@@ -75,8 +72,6 @@ dep_basicfwd.o = /home/khwarizmi/skeleton/basicfwd.c \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
- /usr/include/x86_64-linux-gnu/bits/stdio.h \
- /usr/include/x86_64-linux-gnu/bits/stdio2.h \
  /usr/include/x86_64-linux-gnu/sys/queue.h \
  /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_log.h \
  /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_dev.h \
@@ -89,8 +84,6 @@ dep_basicfwd.o = /home/khwarizmi/skeleton/basicfwd.c \
  /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_ether.h \
  /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_memcpy.h \
  /usr/include/string.h /usr/include/strings.h \
- /usr/include/x86_64-linux-gnu/bits/strings_fortified.h \
- /usr/include/x86_64-linux-gnu/bits/string_fortified.h \
  /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_vect.h \
  /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_vect.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/x86intrin.h \
@@ -199,9 +192,8 @@ dep_basicfwd.o = /home/khwarizmi/skeleton/basicfwd.c \
  /usr/include/x86_64-linux-gnu/asm/sockios.h \
  /usr/include/asm-generic/sockios.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
- /usr/include/x86_64-linux-gnu/bits/socket2.h \
  /usr/include/x86_64-linux-gnu/bits/in.h /usr/include/netinet/tcp.h \
- /home/khwarizmi/skeleton/include/protos.h \
- /home/khwarizmi/skeleton/include/ethernet.h \
- /home/khwarizmi/skeleton/include/ip.h \
- /home/khwarizmi/skeleton/include/rule.h
+ /home/khwarizmi/git/khwarizmi/skeleton/include/protos.h \
+ /home/khwarizmi/git/khwarizmi/skeleton/include/ethernet.h \
+ /home/khwarizmi/git/khwarizmi/skeleton/include/ip.h \
+ /home/khwarizmi/git/khwarizmi/skeleton/include/rule.h
