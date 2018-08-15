@@ -23,15 +23,27 @@
 #define MBUF_CACHE_SIZE 250
 #define BURST_SIZE 32
 
-#define LIST_NUM 1
+#define LIST_NUM 4
 
-struct rule rule1 = {
-	.src_ip = 0x0a000003,
-	.dest_ip = 0x0a000004,
-	.proto = 6,
-	.th_sport = 0x50,
-	.th_dport = 0x50,
-};
+//struct rule rule1 = {
+//	.src_ip = 0x0a000003,
+//	.dest_ip = 0x0a000004,
+//	.proto = 6,
+//	.th_sport = 0x50,
+//	.th_dport = 0x50,
+//};
+
+struct rule list[LIST_NUM];
+void list_init(void) {
+	for (int i = 0; i < LIST_NUM; i++) {
+		list[i].src_ip = 0x0a000003 + i;
+		list[i].dest_ip = 0x0a000004;
+		list[i].proto = 6;
+		list[i].th_sport = 0x50;
+		list[i].th_dport = 0x50;
+	}
+	return;
+}
 
 static const struct rte_eth_conf port_conf_default = {
 	.rxmode = {
@@ -158,31 +170,37 @@ lcore_main(void)
 
 			for (int i = 0; i < nb_rx; i++) {
 				uint8_t *p = rte_pktmbuf_mtod(bufs[i], uint8_t*);
-				size_t size = rte_pktmbuf_pkt_len(bufs[i]);
+				//size_t size = rte_pktmbuf_pkt_len(bufs[i]);
+				//size_t ip_size, tcp_size;
+				int tx_flag = 1;
 
 				//struct ethernet_hdr *eth;
 				//eth = (struct ethernet_hdr *) p;
 				p += sizeof(struct ether_hdr);
-				size -= sizeof(struct ether_hdr);
-
 				struct ip_hdr *iphdr = (struct ip_hdr *)p;
-				if (ntohl(iphdr->src_addr) == rule1.src_ip) {
-					if (ntohl(iphdr->dest_addr) == rule1.dest_ip) {
-						if (iphdr->proto == rule1.proto) {
-							p += sizeof(struct ip_hdr);
-							size -= sizeof(struct ip_hdr);
-							struct tcphdr *tcphdr = (struct tcphdr *)p;
-							if (ntohs(tcphdr->th_sport) == rule1.th_sport) {
-								if (ntohs(tcphdr->th_dport) == rule1.th_dport) {
-									rte_pktmbuf_free(bufs[i]);
-									continue;
+				//ip_size = size - sizeof(struct ether_hdr);
+				p += sizeof(struct ip_hdr);
+				struct tcphdr *tcphdr = (struct tcphdr *)p;
+				//tcp_size = ip_size - sizeof(struct ip_hdr);
+				
+				for (int j = 0; j < LIST_NUM; j++) {
+					if (ntohl(iphdr->src_addr) == list[j].src_ip) {
+						if (ntohl(iphdr->dest_addr) == list[j].dest_ip) {
+							if (iphdr->proto == list[j].proto) {
+								if (ntohs(tcphdr->th_sport) == list[j].th_sport) {
+									if (ntohs(tcphdr->th_dport) == list[j].th_dport) {
+										rte_pktmbuf_free(bufs[i]);
+										tx_flag = 0;
+										continue;
+									}
 								}
 							}
 						}
 					}
 				}
 #if 1
-				rte_eth_tx_burst(port ^ 1, 0, &bufs[i], 1);
+				if (tx_flag == 1)
+					rte_eth_tx_burst(port ^ 1, 0, &bufs[i], 1);
 			}
 #else	
 			}
@@ -240,6 +258,9 @@ main(int argc, char *argv[])
 
 	if (rte_lcore_count() > 1)
 		printf("\nWARNING: Too many lcores enabled. Only 1 used.\n");
+
+	/* black list initialization */
+	list_init();
 
 	/* Call lcore_main on the master core only. */
 	lcore_main();

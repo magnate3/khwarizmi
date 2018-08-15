@@ -5,3 +5,5 @@ struct rule {
 	uint16_t th_sport;
 	uint16_t th_dport;
 };
+
+void list_init(void);
