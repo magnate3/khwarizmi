@@ -166,20 +166,14 @@ lcore_main(void)
 				size -= sizeof(struct ether_hdr);
 
 				struct ip_hdr *iphdr = (struct ip_hdr *)p;
-				printf("src: %x, dest: %x, proto: %x\n", ntohl(iphdr->src_addr), ntohl(iphdr->dest_addr), iphdr->proto);
 				if (ntohl(iphdr->src_addr) == rule1.src_ip) {
-					printf("src\n");
 					if (ntohl(iphdr->dest_addr) == rule1.dest_ip) {
-						printf("dest\n");
 						if (iphdr->proto == rule1.proto) {
 							p += sizeof(struct ip_hdr);
 							size -= sizeof(struct ip_hdr);
 							struct tcphdr *tcphdr = (struct tcphdr *)p;
-							printf("dport: %x, sport: %x\n", ntohs(tcphdr->th_sport), ntohs(tcphdr->th_dport));
 							if (ntohs(tcphdr->th_sport) == rule1.th_sport) {
-								printf("sport\n");
 								if (ntohs(tcphdr->th_dport) == rule1.th_dport) {
-									printf("dport\n");
 									rte_pktmbuf_free(bufs[i]);
 									continue;
 								}
