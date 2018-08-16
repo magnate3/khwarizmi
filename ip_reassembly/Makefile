@@ -61,3 +61,6 @@ endif
 include $(RTE_SDK)/mk/rte.extapp.mk
 
 endif
+
+run:
+	./build/ip_reassembly -l 1,2 -n2 -- -p3

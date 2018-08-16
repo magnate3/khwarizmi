@@ -23,7 +23,7 @@
 #define MBUF_CACHE_SIZE 250
 #define BURST_SIZE 32
 
-#define LIST_NUM 4
+#define LIST_NUM 8
 
 //struct rule rule1 = {
 //	.src_ip = 0x0a000003,
@@ -36,11 +36,11 @@
 struct rule list[LIST_NUM];
 void list_init(void) {
 	for (int i = 0; i < LIST_NUM; i++) {
-		list[i].src_ip = 0x0a000003 + i;
+		list[i].src_ip = 0x0a000006;
 		list[i].dest_ip = 0x0a000004;
 		list[i].proto = 6;
 		list[i].th_sport = 0x50;
-		list[i].th_dport = 0x50;
+		list[i].th_dport = 0x51;
 	}
 	return;
 }
@@ -169,20 +169,21 @@ lcore_main(void)
 				continue;
 
 			for (int i = 0; i < nb_rx; i++) {
-				uint8_t *p = rte_pktmbuf_mtod(bufs[i], uint8_t*);
+//				uint8_t *p = rte_pktmbuf_mtod(bufs[i], uint8_t*);
 				//size_t size = rte_pktmbuf_pkt_len(bufs[i]);
 				//size_t ip_size, tcp_size;
-				int tx_flag = 1;
-
-				//struct ethernet_hdr *eth;
-				//eth = (struct ethernet_hdr *) p;
-				p += sizeof(struct ether_hdr);
-				struct ip_hdr *iphdr = (struct ip_hdr *)p;
-				//ip_size = size - sizeof(struct ether_hdr);
-				p += sizeof(struct ip_hdr);
-				struct tcphdr *tcphdr = (struct tcphdr *)p;
+//				int tx_flag = 1;
+//
+//				//struct ethernet_hdr *eth;
+//				//eth = (struct ethernet_hdr *) p;
+//				p += sizeof(struct ether_hdr);
+//				struct ip_hdr *iphdr = (struct ip_hdr *)p;
+//				//ip_size = size - sizeof(struct ether_hdr);
+//				p += sizeof(struct ip_hdr);
+//				struct tcphdr *tcphdr = (struct tcphdr *)p;
 				//tcp_size = ip_size - sizeof(struct ip_hdr);
 				
+#if 0
 				for (int j = 0; j < LIST_NUM; j++) {
 					if (ntohl(iphdr->src_addr) == list[j].src_ip) {
 						if (ntohl(iphdr->dest_addr) == list[j].dest_ip) {
@@ -198,12 +199,12 @@ lcore_main(void)
 						}
 					}
 				}
-#if 1
 				if (tx_flag == 1)
 					rte_eth_tx_burst(port ^ 1, 0, &bufs[i], 1);
 			}
 #else	
 			}
+			printf("******\n");
 			/* Send burst of TX packets, to second port of pair. */
 			const uint16_t nb_tx = rte_eth_tx_burst(port ^ 1, 0,
 					bufs, nb_rx);

@@ -1,6 +1,6 @@
 dep_basicfwd.o = /home/khwarizmi/git/khwarizmi/skeleton/basicfwd.c \
  /usr/include/stdc-predef.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_config.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_config.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/stdint.h /usr/include/stdint.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/x86_64-linux-gnu/sys/cdefs.h \
@@ -14,7 +14,7 @@ dep_basicfwd.o = /home/khwarizmi/git/khwarizmi/skeleton/basicfwd.c \
  /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
  /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h \
  /usr/include/inttypes.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_eal.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_eal.h \
  /usr/include/sched.h /usr/lib/gcc/x86_64-linux-gnu/7/include/stddef.h \
  /usr/include/x86_64-linux-gnu/bits/types/time_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h \
@@ -28,9 +28,9 @@ dep_basicfwd.o = /home/khwarizmi/git/khwarizmi/skeleton/basicfwd.c \
  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
  /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_config.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_compat.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_common.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_config.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_compat.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_common.h \
  /usr/include/stdlib.h /usr/include/x86_64-linux-gnu/bits/waitflags.h \
  /usr/include/x86_64-linux-gnu/bits/waitstatus.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
@@ -61,9 +61,9 @@ dep_basicfwd.o = /home/khwarizmi/git/khwarizmi/skeleton/basicfwd.c \
  /usr/include/x86_64-linux-gnu/bits/local_lim.h \
  /usr/include/linux/limits.h \
  /usr/include/x86_64-linux-gnu/bits/posix2_lim.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_per_lcore.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_per_lcore.h \
  /usr/include/pthread.h /usr/include/x86_64-linux-gnu/bits/setjmp.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_bus.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_bus.h \
  /usr/include/stdio.h /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
  /usr/include/x86_64-linux-gnu/bits/libio.h \
@@ -73,19 +73,19 @@ dep_basicfwd.o = /home/khwarizmi/git/khwarizmi/skeleton/basicfwd.c \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/sys_errlist.h \
  /usr/include/x86_64-linux-gnu/sys/queue.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_log.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_dev.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_pci_dev_feature_defs.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_ethdev.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_interrupts.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_eal_interrupts.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_devargs.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_errno.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_ether.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_memcpy.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_log.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_dev.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_pci_dev_feature_defs.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_ethdev.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_interrupts.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_eal_interrupts.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_devargs.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_errno.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_ether.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_memcpy.h \
  /usr/include/string.h /usr/include/strings.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_vect.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_vect.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_vect.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_vect.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/x86intrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/ia32intrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/mmintrin.h \
@@ -144,43 +144,43 @@ dep_basicfwd.o = /home/khwarizmi/git/khwarizmi/skeleton/basicfwd.c \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/mwaitxintrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/clzerointrin.h \
  /usr/lib/gcc/x86_64-linux-gnu/7/include/pkuintrin.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_random.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_mbuf.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_mempool.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_spinlock.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_spinlock.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_lcore.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_launch.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_pause.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_pause.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_rtm.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_cpuflags.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_cpuflags.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_branch_prediction.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_common.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_pause.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_debug.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_log.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_memory.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_branch_prediction.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_ring.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_atomic.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_atomic.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_atomic_64.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_memzone.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_ring_generic.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_prefetch.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_prefetch.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_mbuf_ptype.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_byteorder.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_byteorder.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_byteorder_64.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_eth_ctrl.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_dev_info.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_ethdev_core.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_cycles.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_cycles.h \
- /home/khwarizmi/dpdk/x86_64-native-linuxapp-gcc/include/rte_hexdump.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_random.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_mbuf.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_mempool.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_spinlock.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_spinlock.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_lcore.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_launch.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_pause.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_pause.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_rtm.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_cpuflags.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_cpuflags.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_branch_prediction.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_common.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_pause.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_debug.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_log.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_memory.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_branch_prediction.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_ring.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_atomic.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_atomic.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_atomic_64.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_memzone.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_ring_generic.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_prefetch.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_prefetch.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_mbuf_ptype.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_byteorder.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_byteorder.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_byteorder_64.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_eth_ctrl.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_dev_info.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_ethdev_core.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_cycles.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/generic/rte_cycles.h \
+ /usr/local/src/dpdk/x86_64-native-linuxapp-gcc/include/rte_hexdump.h \
  /usr/include/arpa/inet.h /usr/include/netinet/in.h \
  /usr/include/x86_64-linux-gnu/sys/socket.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \

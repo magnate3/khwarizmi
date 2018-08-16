@@ -43,6 +43,8 @@
 #include <rte_lpm.h>
 #include <rte_lpm6.h>
 
+#include<rte_hexdump.h>
+
 #include <rte_ip_frag.h>
 
 #define MAX_PKT_BURST 32
@@ -192,7 +194,7 @@ struct l3fwd_ipv4_route {
 };
 
 struct l3fwd_ipv4_route l3fwd_ipv4_route_array[] = {
-		{IPv4(100,10,0,0), 16, 0},
+		{IPv4(10,0,0,0), 16, 0},
 		{IPv4(100,20,0,0), 16, 1},
 		{IPv4(100,30,0,0), 16, 2},
 		{IPv4(100,40,0,0), 16, 3},
@@ -261,6 +263,11 @@ send_burst(struct lcore_queue_conf *qconf, uint32_t thresh, uint16_t port)
 	if (fill >= thresh) {
 		n = RTE_MIN(len - txmb->tail, fill);
 
+		struct rte_mbuf *m = *(txmb->m_table + txmb->tail);
+		printf("*** tx_burst ***\nlength: %u\n", rte_pktmbuf_pkt_len(m));
+		
+		rte_pktmbuf_dump(stdout, m, rte_pktmbuf_pkt_len(m));
+			
 		k = rte_eth_tx_burst(port, qconf->tx_queue_id[port],
 			txmb->m_table + txmb->tail, (uint16_t)n);
 
@@ -279,6 +286,7 @@ send_burst(struct lcore_queue_conf *qconf, uint32_t thresh, uint16_t port)
 static inline int
 send_single_packet(struct rte_mbuf *m, uint16_t port)
 {
+	printf("send_single\n");
 	uint32_t fill, lcore_id, len;
 	struct lcore_queue_conf *qconf;
 	struct mbuf_table *txmb;
@@ -315,7 +323,7 @@ reassemble(struct rte_mbuf *m, uint16_t portid, uint32_t queue,
 	struct rte_ip_frag_death_row *dr;
 	struct rx_queue *rxq;
 	void *d_addr_bytes;
-	uint32_t next_hop;
+//	uint32_t next_hop;
 	uint16_t dst_port;
 
 	rxq = &qconf->rx_queue_list[queue];
@@ -327,12 +335,13 @@ reassemble(struct rte_mbuf *m, uint16_t portid, uint32_t queue,
 	/* if packet is IPv4 */
 	if (RTE_ETH_IS_IPV4_HDR(m->packet_type)) {
 		struct ipv4_hdr *ip_hdr;
-		uint32_t ip_dst;
+		//uint32_t ip_dst;
 
 		ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
 
 		 /* if it is a fragmented packet, then try to reassemble. */
 		if (rte_ipv4_frag_pkt_is_fragmented(ip_hdr)) {
+			printf("is fragment\n");
 			struct rte_mbuf *mo;
 
 			tbl = rxq->frag_tbl;
@@ -344,10 +353,14 @@ reassemble(struct rte_mbuf *m, uint16_t portid, uint32_t queue,
 
 			/* process this fragment. */
 			mo = rte_ipv4_frag_reassemble_packet(tbl, dr, m, tms, ip_hdr);
-			if (mo == NULL)
+			if (mo == NULL) {
+//				printf("-------------------\n");
+//				rte_ip_frag_table_statistics_dump(stdout, tbl);
+//				printf("-------------------\n");
 				/* no packet to send out. */
 				return;
-
+			}
+			printf("reassenbled\n");
 			/* we have our packet reassembled. */
 			if (mo != m) {
 				m = mo;
@@ -356,54 +369,59 @@ reassemble(struct rte_mbuf *m, uint16_t portid, uint32_t queue,
 				ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
 			}
 		}
-		ip_dst = rte_be_to_cpu_32(ip_hdr->dst_addr);
+		//ip_dst = rte_be_to_cpu_32(ip_hdr->dst_addr);
 
 		/* Find destination port */
+#if 0
 		if (rte_lpm_lookup(rxq->lpm, ip_dst, &next_hop) == 0 &&
 				(enabled_port_mask & 1 << next_hop) != 0) {
 			dst_port = next_hop;
 		}
+#else
+		dst_port = portid ^ 1;
+#endif
 
 		eth_hdr->ether_type = rte_be_to_cpu_16(ETHER_TYPE_IPv4);
-	} else if (RTE_ETH_IS_IPV6_HDR(m->packet_type)) {
-		/* if packet is IPv6 */
-		struct ipv6_extension_fragment *frag_hdr;
-		struct ipv6_hdr *ip_hdr;
-
-		ip_hdr = (struct ipv6_hdr *)(eth_hdr + 1);
-
-		frag_hdr = rte_ipv6_frag_get_ipv6_fragment_header(ip_hdr);
-
-		if (frag_hdr != NULL) {
-			struct rte_mbuf *mo;
-
-			tbl = rxq->frag_tbl;
-			dr  = &qconf->death_row;
-
-			/* prepare mbuf: setup l2_len/l3_len. */
-			m->l2_len = sizeof(*eth_hdr);
-			m->l3_len = sizeof(*ip_hdr) + sizeof(*frag_hdr);
-
-			mo = rte_ipv6_frag_reassemble_packet(tbl, dr, m, tms, ip_hdr, frag_hdr);
-			if (mo == NULL)
-				return;
-
-			if (mo != m) {
-				m = mo;
-				eth_hdr = rte_pktmbuf_mtod(m, struct ether_hdr *);
-				ip_hdr = (struct ipv6_hdr *)(eth_hdr + 1);
-			}
-		}
-
-		/* Find destination port */
-		if (rte_lpm6_lookup(rxq->lpm6, ip_hdr->dst_addr,
-						&next_hop) == 0 &&
-				(enabled_port_mask & 1 << next_hop) != 0) {
-			dst_port = next_hop;
-		}
-
-		eth_hdr->ether_type = rte_be_to_cpu_16(ETHER_TYPE_IPv6);
-	}
+	} 
+//	else if (RTE_ETH_IS_IPV6_HDR(m->packet_type)) {
+//		/* if packet is IPv6 */
+//		struct ipv6_extension_fragment *frag_hdr;
+//		struct ipv6_hdr *ip_hdr;
+//
+//		ip_hdr = (struct ipv6_hdr *)(eth_hdr + 1);
+//
+//		frag_hdr = rte_ipv6_frag_get_ipv6_fragment_header(ip_hdr);
+//
+//		if (frag_hdr != NULL) {
+//			struct rte_mbuf *mo;
+//
+//			tbl = rxq->frag_tbl;
+//			dr  = &qconf->death_row;
+//
+//			/* prepare mbuf: setup l2_len/l3_len. */
+//			m->l2_len = sizeof(*eth_hdr);
+//			m->l3_len = sizeof(*ip_hdr) + sizeof(*frag_hdr);
+//
+//			mo = rte_ipv6_frag_reassemble_packet(tbl, dr, m, tms, ip_hdr, frag_hdr);
+//			if (mo == NULL)
+//				return;
+//
+//			if (mo != m) {
+//				m = mo;
+//				eth_hdr = rte_pktmbuf_mtod(m, struct ether_hdr *);
+//				ip_hdr = (struct ipv6_hdr *)(eth_hdr + 1);
+//			}
+//		}
+//
+//		/* Find destination port */
+//		if (rte_lpm6_lookup(rxq->lpm6, ip_hdr->dst_addr,
+//						&next_hop) == 0 &&
+//				(enabled_port_mask & 1 << next_hop) != 0) {
+//			dst_port = next_hop;
+//		}
+//
+//		eth_hdr->ether_type = rte_be_to_cpu_16(ETHER_TYPE_IPv6);
+//	}
 	/* if packet wasn't IPv4 or IPv6, it's forwarded to the port it came from */
 
 	/* 02:00:00:00:00:xx */
@@ -861,6 +879,7 @@ setup_queue_tbl(struct rx_queue *rxq, uint32_t lcore, uint32_t queue)
 		RTE_LOG(ERR, IP_RSMBL, "ip_frag_tbl_create(%u) on "
 			"lcore: %u for queue: %u failed\n",
 			max_flow_num, lcore, queue);
+		printf("con 1\n");
 		return -1;
 	}
 
@@ -879,11 +898,13 @@ setup_queue_tbl(struct rx_queue *rxq, uint32_t lcore, uint32_t queue)
 
 	snprintf(buf, sizeof(buf), "mbuf_pool_%u_%u", lcore, queue);
 
+	printf("slankdev: rte_pktmbuf_pool_create(%s) \n", buf);
 	rxq->pool = rte_pktmbuf_pool_create(buf, nb_mbuf, MEMPOOL_CACHE_SIZE, 0,
 					    MBUF_DATA_SIZE, socket);
 	if (rxq->pool == NULL) {
 		RTE_LOG(ERR, IP_RSMBL,
 			"rte_pktmbuf_pool_create(%s) failed", buf);
+		printf("con2\n");
 		return -1;
 	}
 
@@ -1069,6 +1090,7 @@ main(int argc, char **argv)
 				 "Cannot adjust number of descriptors: err=%d, port=%d\n",
 				 ret, portid);
 
+		printf("slankdev: rx_lcore_id:%u, queueid:%u\n", rx_lcore_id, queueid);
 		if (setup_queue_tbl(rxq, rx_lcore_id, queueid) < 0)
 			rte_exit(EXIT_FAILURE, "Failed to set up queue table\n");
 		qconf->n_rx_queue++;
