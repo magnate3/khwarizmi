@@ -354,13 +354,10 @@ reassemble(struct rte_mbuf *m, uint16_t portid, uint32_t queue,
 			/* process this fragment. */
 			mo = rte_ipv4_frag_reassemble_packet(tbl, dr, m, tms, ip_hdr);
 			if (mo == NULL) {
-//				printf("-------------------\n");
-//				rte_ip_frag_table_statistics_dump(stdout, tbl);
-//				printf("-------------------\n");
 				/* no packet to send out. */
 				return;
 			}
-			printf("reassenbled\n");
+			printf("reassembled\n");
 			/* we have our packet reassembled. */
 			if (mo != m) {
 				m = mo;
@@ -369,60 +366,9 @@ reassemble(struct rte_mbuf *m, uint16_t portid, uint32_t queue,
 				ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
 			}
 		}
-		//ip_dst = rte_be_to_cpu_32(ip_hdr->dst_addr);
-
-		/* Find destination port */
-#if 0
-		if (rte_lpm_lookup(rxq->lpm, ip_dst, &next_hop) == 0 &&
-				(enabled_port_mask & 1 << next_hop) != 0) {
-			dst_port = next_hop;
-		}
-#else
 		dst_port = portid ^ 1;
-#endif
-
 		eth_hdr->ether_type = rte_be_to_cpu_16(ETHER_TYPE_IPv4);
 	} 
-//	else if (RTE_ETH_IS_IPV6_HDR(m->packet_type)) {
-//		/* if packet is IPv6 */
-//		struct ipv6_extension_fragment *frag_hdr;
-//		struct ipv6_hdr *ip_hdr;
-//
-//		ip_hdr = (struct ipv6_hdr *)(eth_hdr + 1);
-//
-//		frag_hdr = rte_ipv6_frag_get_ipv6_fragment_header(ip_hdr);
-//
-//		if (frag_hdr != NULL) {
-//			struct rte_mbuf *mo;
-//
-//			tbl = rxq->frag_tbl;
-//			dr  = &qconf->death_row;
-//
-//			/* prepare mbuf: setup l2_len/l3_len. */
-//			m->l2_len = sizeof(*eth_hdr);
-//			m->l3_len = sizeof(*ip_hdr) + sizeof(*frag_hdr);
-//
-//			mo = rte_ipv6_frag_reassemble_packet(tbl, dr, m, tms, ip_hdr, frag_hdr);
-//			if (mo == NULL)
-//				return;
-//
-//			if (mo != m) {
-//				m = mo;
-//				eth_hdr = rte_pktmbuf_mtod(m, struct ether_hdr *);
-//				ip_hdr = (struct ipv6_hdr *)(eth_hdr + 1);
-//			}
-//		}
-//
-//		/* Find destination port */
-//		if (rte_lpm6_lookup(rxq->lpm6, ip_hdr->dst_addr,
-//						&next_hop) == 0 &&
-//				(enabled_port_mask & 1 << next_hop) != 0) {
-//			dst_port = next_hop;
-//		}
-//
-//		eth_hdr->ether_type = rte_be_to_cpu_16(ETHER_TYPE_IPv6);
-//	}
-	/* if packet wasn't IPv4 or IPv6, it's forwarded to the port it came from */
 
 	/* 02:00:00:00:00:xx */
 	d_addr_bytes = &eth_hdr->d_addr.addr_bytes[0];
