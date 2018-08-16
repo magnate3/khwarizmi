@@ -118,8 +118,6 @@ static struct ether_addr ports_eth_addr[RTE_MAX_ETHPORTS];
 	addr[12], addr[13],addr[14], addr[15]
 #endif
 
-#define IPV6_ADDR_LEN 16
-
 /* mask of enabled ports */
 static uint32_t enabled_port_mask = 0;
 
@@ -204,39 +202,11 @@ struct l3fwd_ipv4_route l3fwd_ipv4_route_array[] = {
 		{IPv4(100,80,0,0), 16, 7},
 };
 
-/*
- * IPv6 forwarding table
- */
-
-struct l3fwd_ipv6_route {
-	uint8_t ip[IPV6_ADDR_LEN];
-	uint8_t depth;
-	uint8_t if_out;
-};
-
-//static struct l3fwd_ipv6_route l3fwd_ipv6_route_array[] = {
-//	{{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, 48, 0},
-//	{{2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, 48, 1},
-//	{{3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, 48, 2},
-//	{{4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, 48, 3},
-//	{{5,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, 48, 4},
-//	{{6,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, 48, 5},
-//	{{7,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, 48, 6},
-//	{{8,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, 48, 7},
-//};
-
 #define LPM_MAX_RULES         1024
 #define LPM6_MAX_RULES         1024
 #define LPM6_NUMBER_TBL8S (1 << 16)
 
-//struct rte_lpm6_config lpm6_config = {
-//		.max_rules = LPM6_MAX_RULES,
-//		.number_tbl8s = LPM6_NUMBER_TBL8S,
-//		.flags = 0
-//};
-
 static struct rte_lpm *socket_lpm[RTE_MAX_NUMA_NODES];
-//static struct rte_lpm6 *socket_lpm6[RTE_MAX_NUMA_NODES];
 
 #ifdef RTE_LIBRTE_IP_FRAG_TBL_STAT
 #define TX_LCORE_STAT_UPDATE(s, f, v)   ((s)->f += (v))
@@ -263,6 +233,11 @@ send_burst(struct lcore_queue_conf *qconf, uint32_t thresh, uint16_t port)
 	if (fill >= thresh) {
 		n = RTE_MIN(len - txmb->tail, fill);
 
+		struct rte_mbuf *mbuf = *(txmb->m_table + txmb->tail);
+		printf("*** tx_burst ***\n");
+
+		rte_pktmbuf_dump(stdout, mbuf, rte_pktmbuf_pkt_len(mbuf));
+
 		k = rte_eth_tx_burst(port, qconf->tx_queue_id[port],
 			txmb->m_table + txmb->tail, (uint16_t)n);
 
@@ -281,7 +256,6 @@ send_burst(struct lcore_queue_conf *qconf, uint32_t thresh, uint16_t port)
 static inline int
 send_single_packet(struct rte_mbuf *m, uint16_t port)
 {
-	printf("send_single\n");
 	uint32_t fill, lcore_id, len;
 	struct lcore_queue_conf *qconf;
 	struct mbuf_table *txmb;
@@ -330,7 +304,6 @@ reassemble(struct rte_mbuf *m, uint16_t portid, uint32_t queue,
 	/* if packet is IPv4 */
 	if (RTE_ETH_IS_IPV4_HDR(m->packet_type)) {
 		struct ipv4_hdr *ip_hdr;
-		//uint32_t ip_dst;
 
 		ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
 
@@ -364,59 +337,11 @@ reassemble(struct rte_mbuf *m, uint16_t portid, uint32_t queue,
 				ip_hdr = (struct ipv4_hdr *)(eth_hdr + 1);
 			}
 		}
-		//ip_dst = rte_be_to_cpu_32(ip_hdr->dst_addr);
 
-		/* Find destination port */
-#if 0
-		if (rte_lpm_lookup(rxq->lpm, ip_dst, &next_hop) == 0 &&
-				(enabled_port_mask & 1 << next_hop) != 0) {
-			dst_port = next_hop;
-		}
-#else
 		dst_port = portid ^ 1;
-#endif
 
 		eth_hdr->ether_type = rte_be_to_cpu_16(ETHER_TYPE_IPv4);
 	} 
-//	else if (RTE_ETH_IS_IPV6_HDR(m->packet_type)) {
-//		/* if packet is IPv6 */
-//		struct ipv6_extension_fragment *frag_hdr;
-//		struct ipv6_hdr *ip_hdr;
-//
-//		ip_hdr = (struct ipv6_hdr *)(eth_hdr + 1);
-//
-//		frag_hdr = rte_ipv6_frag_get_ipv6_fragment_header(ip_hdr);
-//
-//		if (frag_hdr != NULL) {
-//			struct rte_mbuf *mo;
-//
-//			tbl = rxq->frag_tbl;
-//			dr  = &qconf->death_row;
-//
-//			/* prepare mbuf: setup l2_len/l3_len. */
-//			m->l2_len = sizeof(*eth_hdr);
-//			m->l3_len = sizeof(*ip_hdr) + sizeof(*frag_hdr);
-//
-//			mo = rte_ipv6_frag_reassemble_packet(tbl, dr, m, tms, ip_hdr, frag_hdr);
-//			if (mo == NULL)
-//				return;
-//
-//			if (mo != m) {
-//				m = mo;
-//				eth_hdr = rte_pktmbuf_mtod(m, struct ether_hdr *);
-//				ip_hdr = (struct ipv6_hdr *)(eth_hdr + 1);
-//			}
-//		}
-//
-//		/* Find destination port */
-//		if (rte_lpm6_lookup(rxq->lpm6, ip_hdr->dst_addr,
-//						&next_hop) == 0 &&
-//				(enabled_port_mask & 1 << next_hop) != 0) {
-//			dst_port = next_hop;
-//		}
-//
-//		eth_hdr->ether_type = rte_be_to_cpu_16(ETHER_TYPE_IPv6);
-//	}
 	/* if packet wasn't IPv4 or IPv6, it's forwarded to the port it came from */
 
 	/* 02:00:00:00:00:xx */
@@ -450,18 +375,15 @@ main_loop(__attribute__((unused)) void *dummy)
 		RTE_LOG(INFO, IP_RSMBL, "lcore %u has nothing to do\n", lcore_id);
 		return 0;
 	}
-
 	RTE_LOG(INFO, IP_RSMBL, "entering main loop on lcore %u\n", lcore_id);
 
 	for (i = 0; i < qconf->n_rx_queue; i++) {
-
 		portid = qconf->rx_queue_list[i].portid;
 		RTE_LOG(INFO, IP_RSMBL, " -- lcoreid=%u portid=%u\n", lcore_id,
 			portid);
 	}
 
 	while (1) {
-
 		cur_tsc = rte_rdtsc();
 
 		/*
@@ -469,7 +391,6 @@ main_loop(__attribute__((unused)) void *dummy)
 		 */
 		diff_tsc = cur_tsc - prev_tsc;
 		if (unlikely(diff_tsc > drain_tsc)) {
-
 			/*
 			 * This could be optimized (use queueid instead of
 			 * portid), but it is not called so often
@@ -486,7 +407,6 @@ main_loop(__attribute__((unused)) void *dummy)
 		 * Read packet from RX queues
 		 */
 		for (i = 0; i < qconf->n_rx_queue; ++i) {
-
 			portid = qconf->rx_queue_list[i].portid;
 
 			nb_rx = rte_eth_rx_burst(portid, 0, pkts_burst,
@@ -800,30 +720,6 @@ init_routing_table(void)
 					l3fwd_ipv4_route_array[i].if_out);
 			}
 		}
-
-		//if (socket_lpm6[socket]) {
-		//	lpm6 = socket_lpm6[socket];
-		//	/* populate the LPM6 table */
-		//	for (i = 0; i < RTE_DIM(l3fwd_ipv6_route_array); i++) {
-		//		ret = rte_lpm6_add(lpm6,
-		//			l3fwd_ipv6_route_array[i].ip,
-		//			l3fwd_ipv6_route_array[i].depth,
-		//			l3fwd_ipv6_route_array[i].if_out);
-
-		//		if (ret < 0) {
-		//			RTE_LOG(ERR, IP_RSMBL, "Unable to add entry %i to the l3fwd "
-		//				"LPM6 table\n", i);
-		//			return -1;
-		//		}
-
-		//		RTE_LOG(INFO, IP_RSMBL, "Socket %i: adding route " IPv6_BYTES_FMT
-		//				"/%d (port %d)\n",
-		//			socket,
-		//			IPv6_BYTES(l3fwd_ipv6_route_array[i].ip),
-		//			l3fwd_ipv6_route_array[i].depth,
-		//			l3fwd_ipv6_route_array[i].if_out);
-		//	}
-		//}
 	}
 	return 0;
 }
@@ -885,7 +781,7 @@ setup_queue_tbl(struct rx_queue *rxq, uint32_t lcore, uint32_t queue)
 
 	nb_mbuf = RTE_MAX(max_flow_num, 2UL * MAX_PKT_BURST) * MAX_FRAG_NUM;
 	nb_mbuf *= (port_conf.rxmode.max_rx_pkt_len + BUF_SIZE - 1) / BUF_SIZE;
-	//nb_mbuf *= 2; /* ipv4 and ipv6 */
+	//nb_mbuf *= 2; /* ipv4 and ipv6 */ daijubu?
 	nb_mbuf += nb_rxd + nb_txd;
 
 	nb_mbuf = RTE_MAX(nb_mbuf, (uint32_t)NB_MBUF);
@@ -908,7 +804,6 @@ init_mem(void)
 {
 	char buf[PATH_MAX];
 	struct rte_lpm *lpm;
-	//struct rte_lpm6 *lpm6;
 	struct rte_lpm_config lpm_config;
 	int socket;
 	unsigned lcore_id;
@@ -940,20 +835,7 @@ init_mem(void)
 			}
 			socket_lpm[socket] = lpm;
 		}
-
-		//if (socket_lpm6[socket] == NULL) {
-		//	RTE_LOG(INFO, IP_RSMBL, "Creating LPM6 table on socket %i\n", socket);
-		//	snprintf(buf, sizeof(buf), "IP_RSMBL_LPM_%i", socket);
-
-		//	lpm6 = rte_lpm6_create(buf, socket, &lpm6_config);
-		//	if (lpm6 == NULL) {
-		//		RTE_LOG(ERR, IP_RSMBL, "Cannot create LPM table\n");
-		//		return -1;
-		//	}
-		//	socket_lpm6[socket] = lpm6;
-		//}
 	}
-
 	return 0;
 }
 
@@ -1073,7 +955,6 @@ main(int argc, char **argv)
 		rxq = &qconf->rx_queue_list[queueid];
 		rxq->portid = portid;
 		rxq->lpm = socket_lpm[socket];
-		//rxq->lpm6 = socket_lpm6[socket];
 
 		ret = rte_eth_dev_adjust_nb_rx_tx_desc(portid, &nb_rxd,
 						       &nb_txd);
