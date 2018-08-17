@@ -72,7 +72,7 @@ void lcore_fragmentation_main(uint16_t *port_num) {
 	struct rte_mbuf *rx_mbufs[BURST_SIZE];
 	
 	while (1) {
-		uint16_t nb_rx = rte_eth_rx_burst(*port_num, 0, rx_mbufs, 1);
+		uint16_t nb_rx = rte_eth_rx_burst(*port_num, 0, rx_mbufs, BURST_SIZE);
 
 		for (int i = 0; i < nb_rx; i++) {
 			struct rte_mbuf *tx_mbufs[BURST_SIZE];
@@ -80,11 +80,12 @@ void lcore_fragmentation_main(uint16_t *port_num) {
 			uint8_t *p = rte_pktmbuf_mtod(rx_mbufs[i], uint8_t*);
 			memcpy(&eth, p, 14); //eth header
 			
-
 			rte_pktmbuf_adj(rx_mbufs[i], (uint16_t)sizeof(struct ether_hdr));
 			frag_num = rte_ipv4_fragment_packet(rx_mbufs[i], tx_mbufs, BURST_SIZE, 1500, direct_pool, indirect_pool);
 			printf("frag_num: %d\n", frag_num);
-
+			if (frag_num < 0) {
+				rte_exit(EXIT_FAILURE, "frag error\n");
+			}
 			printf("=== frag pkts ===\n");
 			for (int j = 0; j < frag_num; j++) {
 				printf("----------------\n");
@@ -94,15 +95,14 @@ void lcore_fragmentation_main(uint16_t *port_num) {
 				rte_pktmbuf_dump(stdout, tx_mbufs[j], rte_pktmbuf_pkt_len(tx_mbufs[j]));
 			}
 			printf("=================\n");
-			rte_pktmbuf_free(rx_mbufs[i]);
 			
-			uint16_t nb_tx = rte_eth_tx_burst(*port_num ^ 1, 0, tx_mbufs, frag_num);
-			if (nb_tx < nb_rx) {
-				for (int k = nb_tx; k < nb_rx ;k++) {
-					printf("free\n");
-					rte_pktmbuf_free(tx_mbufs[k]);
-				}
-			}
+			//uint16_t nb_tx = rte_eth_tx_burst(*port_num ^ 1, 0, tx_mbufs, 1);
+			//if (nb_tx < nb_rx) {
+			//	for (int k = nb_tx; k < nb_rx ;k++) {
+			//		printf("free\n");
+			//		rte_pktmbuf_free(tx_mbufs[k]);
+			//	}
+			//}
 		}
 	}
 }
