@@ -63,4 +63,4 @@ include $(RTE_SDK)/mk/rte.extapp.mk
 endif
 
 run:
-	./build/ip_reassembly -l 1,2 -n2 -- -p3
+	sudo ./build/ip_reassembly -l 1,2 -n2 -w 02:00.0 -w 02:00.1 -- -p3

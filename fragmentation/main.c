@@ -91,18 +91,18 @@ void lcore_fragmentation_main(uint16_t *port_num) {
 				printf("----------------\n");
 				uint8_t *pp = rte_pktmbuf_prepend(tx_mbufs[j], (uint16_t)sizeof(struct ethernet_hdr));
 				memcpy(pp, &eth, 14);
-				rte_pktmbuf_linearize(tx_mbufs[j]);
+				//rte_pktmbuf_linearize(tx_mbufs[j]);
 				rte_pktmbuf_dump(stdout, tx_mbufs[j], rte_pktmbuf_pkt_len(tx_mbufs[j]));
 			}
 			printf("=================\n");
 			
-			//uint16_t nb_tx = rte_eth_tx_burst(*port_num ^ 1, 0, tx_mbufs, 1);
-			//if (nb_tx < nb_rx) {
-			//	for (int k = nb_tx; k < nb_rx ;k++) {
-			//		printf("free\n");
-			//		rte_pktmbuf_free(tx_mbufs[k]);
-			//	}
-			//}
+			uint16_t nb_tx = rte_eth_tx_burst(*port_num ^ 1, 0, tx_mbufs, 1);
+			if (nb_tx < nb_rx) {
+				for (int k = nb_tx; k < nb_rx ;k++) {
+					printf("free\n");
+					rte_pktmbuf_free(tx_mbufs[k]);
+				}
+			}
 		}
 	}
 }
@@ -118,6 +118,7 @@ int launch_fragmentation_main(void *arg) {
 void lcore_reassemble_main(uint16_t *port_num) {
 	printf("reassemble\n");
 	struct rte_mbuf *rx_mbufs[BURST_SIZE];
+	//struct rte_mbuf *mbuf = rte_pktmbuf_alloc(mbuf_pool);
 
 	while (1) {
 		uint16_t nb_rx = rte_eth_rx_burst(*port_num, 0, rx_mbufs, 1);

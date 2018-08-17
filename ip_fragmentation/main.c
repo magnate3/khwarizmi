@@ -399,8 +399,12 @@ main_loop(__attribute__((unused)) void *dummy)
 			nb_rx = rte_eth_rx_burst(portid, 0, pkts_burst,
 						 MAX_PKT_BURST);
 			
-			if (nb_rx > 0)
+			if (nb_rx > 0) {
 				printf("rx_burst\n");
+				for (int j = 0; j <nb_rx; j++) {
+					rte_pktmbuf_dump(stdout, pkts_burst[j], 0);
+				}
+			}
 
 			/* Prefetch first packets */
 			for (j = 0; j < PREFETCH_OFFSET && j < nb_rx; j++) {

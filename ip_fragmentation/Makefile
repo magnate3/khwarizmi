@@ -61,3 +61,6 @@ endif
 include $(RTE_SDK)/mk/rte.extapp.mk
 
 endif
+
+run:
+	sudo ./build/ip_fragmentation -l 1,2 -n2 -w 02:00.0 -w 02:00.1 -- -p3
