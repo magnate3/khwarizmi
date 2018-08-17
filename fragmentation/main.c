@@ -9,8 +9,15 @@
 #include <rte_ethdev.h>
 #include <rte_mempool.h>
 #include <rte_mbuf.h>
+#include <rte_ip_frag.h>
+
+#include"ethernet.h"
+
 #define unused(a) (void)(a)
 
+#define BURST_SIZE 32
+
+struct rte_mempool *mp;
 
 static void port_configure(uint8_t port, size_t nb_rxq, size_t nb_txq,
       const struct rte_eth_conf* port_conf, struct rte_mempool* mp)
@@ -50,39 +57,96 @@ mbuf_set(struct rte_mbuf* m, uint8_t* ptr, size_t len)
 }
 
 /* fragmentation */
-void lcore_fragmentation_main(uint16_t port_num) {
-	struct rte_mbuf *rx_mbuf[BURST_SIZE];
+void lcore_fragmentation_main(uint16_t *port_num) {
+	/* rx_queue */
+	struct rte_mempool *direct_pool;
+	struct rte_mempool *indirect_pool;
+	struct ethernet_hdr eth;
 
-	uint16_t nb_tx = rte_eth_tx_burst(port_num, 0, rx_mbufs, 1);
+	int socket, frag_num;
+	socket = rte_lcore_to_socket_id(rte_lcore_id());
+
+	direct_pool  = rte_pktmbuf_pool_create("direct_pool", 8192, 0, 0, RTE_MBUF_DEFAULT_BUF_SIZE, socket);
+	indirect_pool  = rte_pktmbuf_pool_create("indirect_pool", 8192, 0, 0, RTE_MBUF_DEFAULT_BUF_SIZE, socket);
+
+	struct rte_mbuf *rx_mbufs[BURST_SIZE];
+	
+	while (1) {
+		uint16_t nb_rx = rte_eth_rx_burst(*port_num, 0, rx_mbufs, 1);
+
+		for (int i = 0; i < nb_rx; i++) {
+			struct rte_mbuf *tx_mbufs[BURST_SIZE];
+			rte_pktmbuf_dump(stdout, rx_mbufs[i], rte_pktmbuf_pkt_len(rx_mbufs[i]));
+			uint8_t *p = rte_pktmbuf_mtod(rx_mbufs[i], uint8_t*);
+			memcpy(&eth, p, 14); //eth header
+			
+
+			rte_pktmbuf_adj(rx_mbufs[i], (uint16_t)sizeof(struct ether_hdr));
+			frag_num = rte_ipv4_fragment_packet(rx_mbufs[i], tx_mbufs, BURST_SIZE, 1500, direct_pool, indirect_pool);
+			printf("frag_num: %d\n", frag_num);
+
+			printf("=== frag pkts ===\n");
+			for (int j = 0; j < frag_num; j++) {
+				printf("----------------\n");
+				uint8_t *pp = rte_pktmbuf_prepend(tx_mbufs[j], (uint16_t)sizeof(struct ethernet_hdr));
+				memcpy(pp, &eth, 14);
+				rte_pktmbuf_linearize(tx_mbufs[j]);
+				rte_pktmbuf_dump(stdout, tx_mbufs[j], rte_pktmbuf_pkt_len(tx_mbufs[j]));
+			}
+			printf("=================\n");
+			rte_pktmbuf_free(rx_mbufs[i]);
+			
+			uint16_t nb_tx = rte_eth_tx_burst(*port_num ^ 1, 0, tx_mbufs, frag_num);
+			if (nb_tx < nb_rx) {
+				for (int k = nb_tx; k < nb_rx ;k++) {
+					printf("free\n");
+					rte_pktmbuf_free(tx_mbufs[k]);
+				}
+			}
+		}
+	}
 }
-int launch_lcore_fragmentation(void *arg) {
+int launch_fragmentation_main(void *arg) {
 	unsigned lcore_id = rte_lcore_id();
 	printf("lcore%u launched\n", lcore_id);
 
-	lcore_fragmentation_main((uint16_t)arg);
+	lcore_fragmentation_main((uint16_t *)arg);
 	return 0;
 }
 
 /* reassemble */
-void lcore_reassemble_main(uint16_t port_num) {
+void lcore_reassemble_main(uint16_t *port_num) {
+	printf("reassemble\n");
 	struct rte_mbuf *rx_mbufs[BURST_SIZE];
 
-	uint16_t nb_tx = rte_eth_tx_burst(port_num, 0, rx_mbufs, 1);
+	while (1) {
+		uint16_t nb_rx = rte_eth_rx_burst(*port_num, 0, rx_mbufs, 1);
+	
+		if (nb_rx > 0) {
+			for (int i = 1; i < nb_rx; i++) {
+				rte_pktmbuf_chain(rx_mbufs[0], rx_mbufs[i]);
+				rte_pktmbuf_free(rx_mbufs[i]);
+			}
+			uint16_t nb_tx = rte_eth_tx_burst(*port_num ^ 1, 0, (struct rte_mbuf**)rx_mbufs, 1);
+			rte_pktmbuf_free(rx_mbufs[0]);
+		}
+	}
 }
 int launch_reassemble_main(void *arg) {
 	unsigned lcore_id = rte_lcore_id();
 	printf("lcore%u launched\n", lcore_id);
 
-	lcore_fragmentation_main((uint16_t)arg);
+	lcore_fragmentation_main((uint16_t *)arg);
 	return 0;
 }
 
 int main(int argc, char **argv)
 {
+	printf("init\n");
   int ret = rte_eal_init(argc, argv);
   if (ret < 0) rte_exit(EXIT_FAILURE, "Invalid EAL parameters\n");
 
-  struct rte_mempool* mp = NULL;
+	printf("mempool\n");
   mp = rte_pktmbuf_pool_create("mp", 8192, 0, 0, RTE_MBUF_DEFAULT_BUF_SIZE, 0);
   if (!mp) rte_exit(EXIT_FAILURE, "Invalid MP parameters\n");
 
@@ -95,7 +159,17 @@ int main(int argc, char **argv)
   port_conf.rxmode.enable_scatter = 1;
   port_conf.txmode.mq_mode = ETH_MQ_TX_NONE;
   port_configure(0,1,1,&port_conf,mp);
+  port_configure(1,1,1,&port_conf,mp);
 
+	uint16_t port0 = 0;
+	uint16_t port1 = 1;
+	//rte_eal_remote_launch(launch_fragmentation_main, (void *)&port0, 1);
+	//rte_eal_remote_launch(launch_reassemble_main, (void *)&port1, 2);
+	printf("launch\n");
+	//lcore_reassemble_main(&port0);
+	lcore_fragmentation_main(&port0);
+
+#if 0
   struct rte_mbuf* m0 = rte_pktmbuf_alloc(mp);
   struct rte_mbuf* m1 = rte_pktmbuf_alloc(mp);
   struct rte_mbuf* m2 = rte_pktmbuf_alloc(mp);
@@ -116,6 +190,10 @@ int main(int argc, char **argv)
 
   rte_pktmbuf_free(m0);
   rte_pktmbuf_free(m1);
+  rte_mempool_free(mp);
+#endif
+	rte_eal_wait_lcore(1);
+	rte_eal_wait_lcore(2);
   rte_mempool_free(mp);
   return 0;
 }
